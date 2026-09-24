@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comentários prontos para YouTube</title>
+  <meta name="description" content="Painel simples para preparar comentários e copiar manualmente para o YouTube." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff3d52'/%3E%3Cpath fill='white' d='m12 9 11 7-11 7z'/%3E%3C/svg%3E" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08090d;
+      --panel: #12141b;
+      --panel-2: #191c25;
+      --line: #2a2f3c;
+      --text: #f6f7fb;
+      --muted: #9da4b2;
+      --red: #ff3d52;
+      --red-2: #e72f44;
+      --blue: #7da8ff;
+      --green: #57d69c;
+      --shadow: 0 28px 80px #0008;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 0%, #262b3d 0, transparent 28rem),
+        linear-gradient(135deg, #08090d 0%, #11131a 100%);
+      color: var(--text);
+      font: 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 21px;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: var(--red);
+      border-radius: 10px;
+      color: #fff;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #59606d;
+    }
+
+    .dot.on {
+      background: var(--green);
+      box-shadow: 0 0 0 4px #57d69c22;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 9px;
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 1;
+      letter-spacing: -0.045em;
+    }
+
+    .intro p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 17px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 11px 14px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+    }
+
+    .btn:hover { border-color: #576071; }
+    .btn.primary { background: var(--red); border-color: var(--red); }
+    .btn.primary:hover { background: var(--red-2); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #101218d9;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .side { padding: 18px; }
+    .main { padding: 20px; min-height: 520px; }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .field { margin: 0 0 14px; }
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #0b0d12;
+      color: var(--text);
+      outline: none;
+      padding: 11px 12px;
+    }
+
+    textarea {
+      min-height: 168px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px #7da8ff1f;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .notice {
+      border-left: 3px solid var(--blue);
+      background: #202432;
+      color: #d6def0;
+      padding: 11px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 16px;
+    }
+
+    .video-preview {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #080a0f;
+      margin-bottom: 16px;
+      aspect-ratio: 16 / 9;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 18px;
+    }
+
+    .video-preview iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .suggestions {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .suggestion {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #0c0f15;
+      padding: 10px;
+    }
+
+    .suggestion p {
+      margin: 0 0 10px;
+      color: #dfe4ee;
+      line-height: 1.45;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .toolbar span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stack { display: grid; gap: 12px; }
+
+    .comment {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .comment.used {
+      border-color: #314337;
+      background: #111b16;
+      opacity: .78;
+    }
+
+    .comment-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .comment-title {
+      font-weight: 750;
+      margin-bottom: 4px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #33513e;
+      border-radius: 999px;
+      color: #a8f0c3;
+      background: #173222;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 7px;
+    }
+
+    .badge.published {
+      border-color: #4d3b16;
+      color: #ffe2a4;
+      background: #34260f;
+    }
+
+    .comment p {
+      margin: 0 0 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--text);
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .alert {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      display: none;
+      border: 1px solid #465067;
+      border-radius: 10px;
+      background: #252a35;
+      padding: 12px 16px;
+      box-shadow: var(--shadow);
+      z-index: 10;
+    }
+
+    .alert.show { display: block; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #050609bb;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9;
+    }
+
+    .modal.show { display: flex; }
+
+    .dialog {
+      width: min(620px, 100%);
+      border: 1px solid #394052;
+      border-radius: 16px;
+      background: #171a21;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .dialog h2 {
+      color: var(--text);
+      font-size: 24px;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      margin-bottom: 10px;
+    }
+
+    .dialog p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 16px;
+    }
+
+    .dialog footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 24px, 1240px); padding-top: 20px; }
+      .intro { grid-template-columns: 1fr; align-items: start; }
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      header { align-items: start; flex-direction: column; }
+      .toolbar { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><span class="mark">▶</span> Comentários prontos</div>
+      <div class="header-actions">
+        <div class="status"><i class="dot" id="authDot"></i><span id="authStatus">Modo simples, sem login</span></div>
+        <button class="btn" id="oauthSettings">Configurar OAuth</button>
+        <button class="btn primary" id="connectGoogle">Conectar Google</button>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div>
+        <h1>Prepare comentários sem Google Auth.</h1>
+        <p>Cole o link do vídeo, monte seus textos e copie manualmente para o YouTube. Nada é publicado automaticamente e nenhuma conta fica conectada aqui.</p>
+      </div>
+      <a class="btn primary" id="openVideo" href="https://www.youtube.com" target="_blank" rel="noreferrer">Abrir vídeo</a>
+    </section>
+
+    <div class="grid">
+      <aside class="panel side">
+        <h2>Vídeo</h2>
+        <div class="field">
+          <label for="videoUrl">Link do vídeo</label>
+          <input id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." />
+          <p class="hint">O vídeo aparece na prévia quando o link for válido.</p>
+        </div>
+
+        <div class="field">
+          <label for="channelUrl">Link do canal</label>
+          <input id="channelUrl" placeholder="https://www.youtube.com/@canal ou /channel/UC..." />
+          <p class="hint">Conecte o Google e carregue vídeos públicos desse canal.</p>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="loadChannelVideos">Carregar vídeos</button>
+          <button class="btn" id="clearChannel">Limpar canal</button>
+        </div>
+
+        <div class="field">
+          <label for="videoSelect">Vídeos do canal</label>
+          <select id="videoSelect" disabled>
+            <option>Cole um canal e carregue os vídeos</option>
+          </select>
+        </div>
+
+        <div class="video-preview" id="videoPreview">Cole um link do YouTube para ver o vídeo aqui.</div>
+
+        <h2>Contas</h2>
+        <div class="field">
+          <label for="accountLabel">Nome ou email da conta</label>
+          <input id="accountLabel" placeholder="Ex: Canal principal, nome@gmail.com" />
+        </div>
+        <button class="btn" id="addAccount" style="width:100%">Adicionar perfil de conta</button>
+        <div class="suggestions" id="accountList"></div>
+
+        <h2>Gerador</h2>
+        <div class="field">
+          <label for="videoTopic">Tema ou título do vídeo</label>
+          <input id="videoTopic" placeholder="Ej: reseña de producto, clase, vlog, música..." />
+        </div>
+        <div class="field">
+          <label for="commentAngle">Tom dos comentários em espanhol</label>
+          <input id="commentAngle" placeholder="Ej: elogioso, curioso, pregunta, apoyo..." />
+        </div>
+        <div class="field">
+          <label for="commentCount">Quantidade de sugestões</label>
+          <input id="commentCount" type="number" min="1" max="20" value="8" />
+        </div>
+        <button class="btn" id="generateComments" style="width:100%">Criar sugestões</button>
+        <div class="suggestions" id="suggestions"></div>
+
+        <h2>Novo comentário</h2>
+        <div class="field">
+          <label for="commentText">Texto</label>
+          <textarea id="commentText" placeholder="Escribe un comentario natural, específico y útil para tu audiencia..."></textarea>
+        </div>
+
+        <div class="row">
+          <button class="btn primary" id="addComment">Adicionar</button>
+          <button class="btn" id="clearDraft">Limpar texto</button>
+        </div>
+
+        <div class="notice">Use esta ferramenta para preparar comentários em espanhol, reais e revisados. Comentários repetitivos, automáticos ou em massa podem prejudicar seu canal.</div>
+      </aside>
+
+      <section class="panel main">
+        <div class="toolbar">
+          <div>
+            <h2>Fila de comentários</h2>
+            <span id="count">Nenhum comentário preparado ainda.</span>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="copyNext" disabled>Copiar próximo</button>
+            <button class="btn" id="copyAll" disabled>Copiar sem usar</button>
+            <button class="btn" id="clearAll" disabled>Limpar fila</button>
+          </div>
+        </div>
+
+        <div class="stack" id="comments">
+          <div class="empty"><div><strong>Pronto para começar.</strong>Cole um link de vídeo e adicione comentários para copiar.</div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal" id="oauthModal">
+    <div class="dialog">
+      <h2>Conectar conta Google</h2>
+      <p>Para o Google mostrar suas contas, este painel precisa de um ID de cliente OAuth do tipo “Aplicativo da Web”. Ele fica salvo só neste navegador. Nenhuma senha é solicitada ou armazenada aqui.</p>
+      <div class="field">
+        <label for="clientId">ID do cliente OAuth</label>
+        <input id="clientId" placeholder="1234567890-abc123.apps.googleusercontent.com" />
+        <p class="hint">No Google Cloud, adicione <strong>http://localhost:8001</strong> em “Origens JavaScript autorizadas”.</p>
+      </div>
+      <footer>
+        <button class="btn" id="closeOauth">Cancelar</button>
+        <button class="btn primary" id="saveOauth">Salvar e conectar</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal" id="publishModal">
+    <div class="dialog">
+      <h2>Publicar comentário?</h2>
+      <p>Este painel vai enviar apenas este comentário, uma única vez, usando a conta Google conectada. Confira o vídeo e o texto antes de confirmar.</p>
+      <div class="field">
+        <label>Comentário selecionado</label>
+        <textarea id="publishPreview" readonly></textarea>
+      </div>
+      <div class="field">
+        <label for="publishAccount">Conta para publicar</label>
+        <select id="publishAccount"></select>
+        <p class="hint">Depois de escolher o perfil, confirme no popup do Google que a conta conectada é a mesma.</p>
+      </div>
+      <footer>
+        <button class="btn" id="cancelPublish">Cancelar</button>
+        <button class="btn primary" id="confirmPublish">Publicar este comentário</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="alert" id="alert"></div>
+
+  <script>
+    const storageKey = 'simple_youtube_comments';
+    const oauthClientKey = 'youtube_oauth_client_id';
+    const $ = (selector) => document.querySelector(selector);
+    const toast = (message) => {
+      const alert = $('#alert');
+      alert.textContent = message;
+      alert.classList.add('show');
+      setTimeout(() => alert.classList.remove('show'), 2800);
+    };
+
+    let comments = [];
+    let accounts = [];
+    let accessToken = '';
+    let pendingPublishId = '';
+    let selectedPublishAccount = '';
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        comments = Array.isArray(saved.comments) ? saved.comments : [];
+        $('#videoUrl').value = saved.videoUrl || '';
+        $('#channelUrl').value = saved.channelUrl || '';
+        $('#videoTopic').value = saved.videoTopic || '';
+        $('#commentAngle').value = saved.commentAngle || '';
+        $('#commentCount').value = saved.commentCount || '8';
+        accounts = Array.isArray(saved.accounts) ? saved.accounts : [];
+      } catch {
+        comments = [];
+        accounts = [];
+      }
+      syncVideoLink();
+      renderVideoPreview();
+      loadOauthConfig();
+      renderAccounts();
+      render();
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify({
+        videoUrl: $('#videoUrl').value.trim(),
+        channelUrl: $('#channelUrl').value.trim(),
+        videoTopic: $('#videoTopic').value.trim(),
+        commentAngle: $('#commentAngle').value.trim(),
+        commentCount: $('#commentCount').value,
+        accounts,
+        comments
+      }));
+    }
+
+    function syncVideoLink() {
+      const url = normalizeYoutubeUrl($('#videoUrl').value.trim());
+      $('#openVideo').href = url || 'https://www.youtube.com';
+    }
+
+    function normalizeYoutubeUrl(value) {
+      if (!value) return '';
+      try {
+        const url = new URL(value);
+        if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) return url.href;
+      } catch {
+        return '';
+      }
+      return '';
+    }
+
+    function loadOauthConfig() {
+      $('#clientId').value = localStorage.getItem(oauthClientKey) || '';
+    }
+
+    function saveOauthConfig() {
+      const clientId = $('#clientId').value.trim();
+      if (!clientId.endsWith('.apps.googleusercontent.com')) {
+        toast('Cole um ID de cliente OAuth válido.');
+        return false;
+      }
+      localStorage.setItem(oauthClientKey, clientId);
+      return true;
+    }
+
+    function connectGoogle() {
+      const clientId = localStorage.getItem(oauthClientKey) || '';
+      if (!clientId) {
+        $('#oauthModal').classList.add('show');
+        return;
+      }
+
+      if (!window.google?.accounts?.oauth2) {
+        toast('O login do Google ainda está carregando. Tente novamente em alguns segundos.');
+        return;
+      }
+
+      google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
+        callback: (response) => {
+          if (response.error) {
+            toast('Não foi possível conectar essa conta.');
+            return;
+          }
+          accessToken = response.access_token || '';
+          $('#authStatus').textContent = 'Conta Google conectada';
+          $('#authDot').classList.add('on');
+          toast('Conta conectada com sucesso.');
+        }
+      }).requestAccessToken({ prompt: 'select_account consent' });
+    }
+
+    async function youtubeApi(path, options = {}) {
+      if (!accessToken) {
+        toast('Conecte sua conta Google antes de buscar no YouTube.');
+        connectGoogle();
+        throw new Error('Conta Google não conectada.');
+      }
+
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/${path}`, {
+        ...options,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || 'Erro na YouTube Data API.');
+      return data;
+    }
+
+    function getYoutubeVideoId(value) {
+      if (!value) return '';
+      try {
+        const url = new URL(value);
+        if (url.hostname.includes('youtu.be')) {
+          return url.pathname.split('/').filter(Boolean)[0] || '';
+        }
+        if (url.hostname.includes('youtube.com')) {
+          if (url.pathname === '/watch') return url.searchParams.get('v') || '';
+          if (url.pathname.startsWith('/shorts/')) return url.pathname.split('/')[2] || '';
+          if (url.pathname.startsWith('/embed/')) return url.pathname.split('/')[2] || '';
+        }
+      } catch {
+        return '';
+      }
+      return '';
+    }
+
+    function getChannelFromUrl(value) {
+      if (!value) return { type: '', value: '' };
+      try {
+        const url = new URL(value);
+        const parts = url.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'channel' && parts[1]) return { type: 'id', value: parts[1] };
+        if (parts[0]?.startsWith('@')) return { type: 'handle', value: parts[0] };
+        if ((parts[0] === 'c' || parts[0] === 'user') && parts[1]) return { type: 'query', value: parts[1].replaceAll('-', ' ') };
+      } catch {
+        if (value.trim().startsWith('@')) return { type: 'handle', value: value.trim() };
+        if (value.trim().startsWith('UC')) return { type: 'id', value: value.trim() };
+      }
+      return { type: 'query', value: value.trim() };
+    }
+
+    async function resolveChannelId(channelInput) {
+      const channel = getChannelFromUrl(channelInput);
+      if (channel.type === 'id') return channel.value;
+      if (channel.type === 'handle') {
+        const data = await youtubeApi(`channels?part=snippet&forHandle=${encodeURIComponent(channel.value)}`);
+        return data.items?.[0]?.id || '';
+      }
+      if (channel.value) {
+        const data = await youtubeApi(`search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(channel.value)}`);
+        return data.items?.[0]?.id?.channelId || '';
+      }
+      return '';
+    }
+
+    async function loadChannelVideos() {
+      const input = $('#channelUrl').value.trim();
+      if (!input) {
+        toast('Cole o link do canal antes de carregar vídeos.');
+        return;
+      }
+
+      $('#videoSelect').disabled = true;
+      $('#videoSelect').innerHTML = '<option>Carregando vídeos...</option>';
+      saveState();
+
+      try {
+        const channelId = await resolveChannelId(input);
+        if (!channelId) throw new Error('Não encontrei esse canal. Tente usar o link /channel/UC... ou @handle.');
+        const data = await youtubeApi(`search?part=snippet&channelId=${encodeURIComponent(channelId)}&type=video&order=date&maxResults=25`);
+        if (!data.items?.length) {
+          $('#videoSelect').innerHTML = '<option>Nenhum vídeo encontrado</option>';
+          toast('Nenhum vídeo encontrado nesse canal.');
+          return;
+        }
+
+        $('#videoSelect').innerHTML = '<option value="">Selecione um vídeo...</option>' + data.items.map((item) => {
+          const videoId = item.id.videoId;
+          const title = item.snippet.title;
+          return `<option value="https://www.youtube.com/watch?v=${escapeAttr(videoId)}">${escapeHtml(title)}</option>`;
+        }).join('');
+        $('#videoSelect').disabled = false;
+        toast(`${data.items.length} vídeos carregados.`);
+      } catch (error) {
+        $('#videoSelect').innerHTML = '<option>Não foi possível carregar</option>';
+        toast(error.message || 'Erro ao carregar vídeos.');
+      }
+    }
+
+    function renderAccounts() {
+      if (!accounts.length) {
+        $('#accountList').innerHTML = '<div class="hint">Nenhum perfil salvo. Adicione um nome ou email para lembrar qual conta usar no popup do Google.</div>';
+      } else {
+        $('#accountList').innerHTML = accounts.map((account) => `
+          <div class="suggestion">
+            <p>${escapeHtml(account.label)}</p>
+            <button class="btn" data-remove-account="${account.id}">Remover</button>
+          </div>
+        `).join('');
+      }
+
+      document.querySelectorAll('[data-remove-account]').forEach((button) => {
+        button.onclick = () => {
+          accounts = accounts.filter((account) => account.id !== button.dataset.removeAccount);
+          saveState();
+          renderAccounts();
+        };
+      });
+    }
+
+    function addAccountProfile() {
+      const label = $('#accountLabel').value.trim();
+      if (!label) {
+        toast('Digite o nome ou email da conta.');
+        return;
+      }
+      accounts.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        label
+      });
+      $('#accountLabel').value = '';
+      saveState();
+      renderAccounts();
+      toast('Perfil de conta adicionado.');
+    }
+
+    function renderVideoPreview() {
+      const id = getYoutubeVideoId($('#videoUrl').value.trim());
+      const preview = $('#videoPreview');
+      if (!id) {
+        preview.innerHTML = 'Cole um link do YouTube para ver o vídeo aqui.';
+        return;
+      }
+      preview.innerHTML = `<iframe src="https://www.youtube.com/embed/${escapeAttr(id)}" title="Prévia do vídeo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+    }
+
+    function generateSuggestions() {
+      const topic = $('#videoTopic').value.trim() || 'este video';
+      const angle = $('#commentAngle').value.trim().toLowerCase();
+      const style = angle || 'natural';
+      const requestedCount = Math.max(1, Math.min(20, Number($('#commentCount').value) || 8));
+      const templates = [
+        `Me gustó mucho cómo explicaste ${topic}. Se entendió claro y fue fácil de seguir.`,
+        `Ese punto sobre ${topic} estuvo muy interesante. Estaría buenísimo ver una segunda parte con más detalles.`,
+        `Buen video, sobre todo porque lo explicaste de una forma directa y útil.`,
+        `¿Vas a traer más contenido sobre ${topic}? Creo que este tema da para mucho más.`,
+        `Este video me ayudó a ver ${topic} desde otra perspectiva. Muy buen contenido.`,
+        `Se nota el trabajo detrás de este video. La forma en que trataste ${topic} quedó muy bien.`,
+        `Gracias por compartir este contenido. Me pareció útil y bien explicado de principio a fin.`,
+        `Me quedo con varias ideas de este video. Especialmente la parte donde hablas de ${topic}.`,
+        `Contenido claro, directo y con buen ritmo. Así da gusto aprender sobre ${topic}.`,
+        `Este tipo de videos aporta mucho porque va al punto sin hacerlo complicado.`,
+        `Muy buena explicación. Me sirvió para entender mejor el tema sin perderme en detalles innecesarios.`,
+        `La manera en que presentaste ${topic} hace que el contenido sea fácil de ver hasta el final.`,
+        `Buen aporte. Ojalá sigas subiendo videos con este enfoque porque se entiende muy bien.`,
+        `Me pareció un video muy completo. Tiene información útil y está explicado con calma.`,
+        `Este tema está muy interesante. Sería genial ver ejemplos más específicos en otro video.`,
+        `Me gustó que el video no se sintiera pesado. Tiene buen ritmo y se entiende todo.`,
+        `Gran contenido. Se nota que pensaste en explicar ${topic} de una forma práctica.`,
+        `Este video está perfecto para quienes quieren entender el tema sin complicarse demasiado.`,
+        `Buenísimo el enfoque. Me dejó con ganas de seguir viendo más contenido parecido.`,
+        `La explicación fue simple, pero con bastante valor. Muy buen trabajo.`
+      ];
+
+      const adjusted = templates.map((text) => {
+        if (style.includes('pergunta') || style.includes('pregunta')) return text.includes('?') || text.includes('¿') ? text : `${text} ¿Cuál sería el siguiente paso para alguien que quiere empezar?`;
+        if (style.includes('apoio') || style.includes('apoyo')) return `${text} Sigue trayendo este tipo de contenido, realmente aporta mucho.`;
+        if (style.includes('curioso')) return `${text} Me quedé con curiosidad por ver más detalles en los próximos videos.`;
+        if (style.includes('elog')) return `${text} La explicación y la edición quedaron muy bien.`;
+        return text;
+      }).slice(0, requestedCount);
+
+      $('#suggestions').innerHTML = adjusted.map((text, index) => `
+        <div class="suggestion">
+          <p>${escapeHtml(text)}</p>
+          <div class="actions">
+            <button class="btn primary" data-add-suggestion="${index}">Adicionar à fila</button>
+            <button class="btn" data-use-suggestion="${index}">Editar antes</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('[data-use-suggestion]').forEach((button) => {
+        button.onclick = () => {
+          $('#commentText').value = adjusted[Number(button.dataset.useSuggestion)] || '';
+          toast('Sugestão enviada para o campo de comentário.');
+        };
+      });
+
+      document.querySelectorAll('[data-add-suggestion]').forEach((button) => {
+        button.onclick = () => {
+          comments.unshift({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            text: adjusted[Number(button.dataset.addSuggestion)] || '',
+            createdAt: new Date().toISOString(),
+            used: false,
+            usedAt: '',
+            published: false,
+            publishedAt: ''
+          });
+          saveState();
+          render();
+          toast('Sugestão adicionada à fila.');
+        };
+      });
+    }
+
+    function addComment() {
+      const text = $('#commentText').value.trim();
+      if (!text) {
+        toast('Escreva um comentário antes de adicionar.');
+        return;
+      }
+
+      comments.unshift({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        text,
+        createdAt: new Date().toISOString(),
+        used: false,
+        usedAt: '',
+        published: false,
+        publishedAt: ''
+      });
+      $('#commentText').value = '';
+      saveState();
+      render();
+      toast('Comentário adicionado à fila.');
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('Copiado.');
+      } catch {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+        toast('Copiado.');
+      }
+    }
+
+    function removeComment(id) {
+      comments = comments.filter((comment) => comment.id !== id);
+      saveState();
+      render();
+    }
+
+    async function copyComment(id) {
+      const comment = comments.find((item) => item.id === id);
+      if (!comment) return;
+      await copyText(comment.text);
+      comment.used = true;
+      comment.usedAt = new Date().toISOString();
+      saveState();
+      render();
+    }
+
+    function toggleUsed(id) {
+      const comment = comments.find((item) => item.id === id);
+      if (!comment) return;
+      comment.used = !comment.used;
+      comment.usedAt = comment.used ? new Date().toISOString() : '';
+      saveState();
+      render();
+    }
+
+    function copyNextUnused() {
+      const next = comments.find((comment) => !comment.used);
+      if (!next) {
+        toast('Todos os comentários da fila já foram usados.');
+        return;
+      }
+      copyComment(next.id);
+    }
+
+    function requestPublish(id) {
+      const comment = comments.find((item) => item.id === id);
+      const videoId = getYoutubeVideoId($('#videoUrl').value.trim());
+      if (!comment) return;
+      if (!videoId) {
+        toast('Cole um link válido do YouTube antes de publicar.');
+        return;
+      }
+      if (!accessToken) {
+        toast('Conecte sua conta Google antes de publicar.');
+        connectGoogle();
+        return;
+      }
+      pendingPublishId = id;
+      $('#publishPreview').value = comment.text;
+      $('#publishAccount').innerHTML = accounts.length
+        ? accounts.map((account) => `<option value="${escapeAttr(account.label)}">${escapeHtml(account.label)}</option>`).join('')
+        : '<option value="">Conta Google conectada agora</option>';
+      $('#publishModal').classList.add('show');
+    }
+
+    async function publishPendingComment() {
+      const comment = comments.find((item) => item.id === pendingPublishId);
+      const videoId = getYoutubeVideoId($('#videoUrl').value.trim());
+      if (!comment || !videoId || !accessToken) {
+        toast('Não foi possível publicar. Confira a conta e o link do vídeo.');
+        return;
+      }
+
+      selectedPublishAccount = $('#publishAccount').value || 'Conta Google conectada';
+      $('#confirmPublish').disabled = true;
+      $('#confirmPublish').textContent = 'Publicando...';
+
+      try {
+        const response = await fetch('https://www.googleapis.com/youtube/v3/commentThreads?part=snippet', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            snippet: {
+              videoId,
+              topLevelComment: {
+                snippet: {
+                  textOriginal: comment.text
+                }
+              }
+            }
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error?.message || 'Erro ao publicar comentário.');
+        }
+
+        comment.used = true;
+        comment.usedAt = new Date().toISOString();
+        comment.published = true;
+        comment.publishedAt = new Date().toISOString();
+        comment.publishedAccount = selectedPublishAccount;
+        comment.youtubeCommentId = data.id || '';
+        pendingPublishId = '';
+        saveState();
+        render();
+        $('#publishModal').classList.remove('show');
+        toast('Comentário publicado no YouTube.');
+      } catch (error) {
+        toast(error.message || 'Erro ao publicar comentário.');
+      } finally {
+        $('#confirmPublish').disabled = false;
+        $('#confirmPublish').textContent = 'Publicar este comentário';
+      }
+    }
+
+    function render() {
+      const usedCount = comments.filter((comment) => comment.used).length;
+      const unusedCount = comments.length - usedCount;
+      $('#count').textContent = comments.length
+        ? `${comments.length} comentário${comments.length === 1 ? '' : 's'} preparado${comments.length === 1 ? '' : 's'} · ${unusedCount} sem usar · ${usedCount} usado${usedCount === 1 ? '' : 's'}.`
+        : 'Nenhum comentário preparado ainda.';
+
+      $('#copyAll').disabled = unusedCount === 0;
+      $('#copyNext').disabled = unusedCount === 0;
+      $('#clearAll').disabled = comments.length === 0;
+
+      if (!comments.length) {
+        $('#comments').innerHTML = '<div class="empty"><div><strong>Pronto para começar.</strong>Cole um link de vídeo e adicione comentários para copiar.</div></div>';
+        return;
+      }
+
+      $('#comments').innerHTML = comments.map((comment, index) => `
+        <article class="comment ${comment.used ? 'used' : ''}">
+          <div class="comment-top">
+            <div>
+              <div class="comment-title">Comentário ${comments.length - index}</div>
+              <div class="meta">${new Date(comment.createdAt).toLocaleString('pt-BR')}</div>
+              ${comment.used ? `<div class="badge">Usado em ${new Date(comment.usedAt || comment.createdAt).toLocaleString('pt-BR')}</div>` : ''}
+              ${comment.published ? `<div class="badge published">Publicado em ${new Date(comment.publishedAt || comment.usedAt || comment.createdAt).toLocaleString('pt-BR')}</div>` : ''}
+              ${comment.publishedAccount ? `<div class="meta">Conta escolhida: ${escapeHtml(comment.publishedAccount)}</div>` : ''}
+            </div>
+            <button class="btn" data-remove="${comment.id}">Remover</button>
+          </div>
+          <p>${escapeHtml(comment.text)}</p>
+          <div class="actions">
+            <button class="btn primary" data-publish="${comment.id}">${comment.published ? 'Publicar novamente' : 'Publicar no YouTube'}</button>
+            <button class="btn primary" data-copy="${comment.id}">Copiar comentário</button>
+            <button class="btn" data-toggle-used="${comment.id}">${comment.used ? 'Marcar não usado' : 'Marcar usado'}</button>
+            <a class="btn" href="${escapeAttr(normalizeYoutubeUrl($('#videoUrl').value.trim()) || 'https://www.youtube.com')}" target="_blank" rel="noreferrer">Abrir vídeo</a>
+          </div>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('[data-copy]').forEach((button) => {
+        button.onclick = () => copyComment(button.dataset.copy);
+      });
+
+      document.querySelectorAll('[data-publish]').forEach((button) => {
+        button.onclick = () => requestPublish(button.dataset.publish);
+      });
+
+      document.querySelectorAll('[data-toggle-used]').forEach((button) => {
+        button.onclick = () => toggleUsed(button.dataset.toggleUsed);
+      });
+
+      document.querySelectorAll('[data-remove]').forEach((button) => {
+        button.onclick = () => removeComment(button.dataset.remove);
+      });
+    }
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value || '';
+      return div.innerHTML;
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll('"', '&quot;');
+    }
+
+    $('#videoUrl').addEventListener('input', () => {
+      syncVideoLink();
+      renderVideoPreview();
+      saveState();
+      render();
+    });
+
+    $('#channelUrl').addEventListener('input', saveState);
+    $('#videoSelect').addEventListener('change', () => {
+      if (!$('#videoSelect').value) return;
+      $('#videoUrl').value = $('#videoSelect').value;
+      syncVideoLink();
+      renderVideoPreview();
+      saveState();
+      render();
+    });
+
+    $('#videoTopic').addEventListener('input', saveState);
+    $('#commentAngle').addEventListener('input', saveState);
+    $('#commentCount').addEventListener('input', saveState);
+
+    $('#addComment').onclick = addComment;
+    $('#addAccount').onclick = addAccountProfile;
+    $('#loadChannelVideos').onclick = loadChannelVideos;
+    $('#clearChannel').onclick = () => {
+      $('#channelUrl').value = '';
+      $('#videoSelect').disabled = true;
+      $('#videoSelect').innerHTML = '<option>Cole um canal e carregue os vídeos</option>';
+      saveState();
+      toast('Canal limpo.');
+    };
+    $('#generateComments').onclick = generateSuggestions;
+    $('#oauthSettings').onclick = () => $('#oauthModal').classList.add('show');
+    $('#closeOauth').onclick = () => $('#oauthModal').classList.remove('show');
+    $('#saveOauth').onclick = () => {
+      if (!saveOauthConfig()) return;
+      $('#oauthModal').classList.remove('show');
+      connectGoogle();
+    };
+    $('#connectGoogle').onclick = connectGoogle;
+    $('#cancelPublish').onclick = () => {
+      pendingPublishId = '';
+      $('#publishModal').classList.remove('show');
+    };
+    $('#confirmPublish').onclick = publishPendingComment;
+    $('#clearDraft').onclick = () => {
+      $('#commentText').value = '';
+      toast('Texto limpo.');
+    };
+    $('#copyNext').onclick = copyNextUnused;
+    $('#copyAll').onclick = () => copyText(comments.filter((comment) => !comment.used).map((comment) => comment.text).join('\n\n---\n\n'));
+    $('#clearAll').onclick = () => {
+      comments = [];
+      saveState();
+      render();
+      toast('Fila limpa.');
+    };
+
+    loadState();
+  </script>
+</body>
+</html>
