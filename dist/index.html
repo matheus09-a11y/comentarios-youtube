@@ -371,6 +371,35 @@
 
     .alert.show { display: block; }
 
+    .auth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .auth-card {
+      width: min(440px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #101218e8;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .auth-card h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .auth-card p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0 0 18px;
+    }
+
+    .app-hidden { display: none; }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -426,13 +455,28 @@
   </style>
 </head>
 <body>
-  <main class="shell">
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="brand" style="margin-bottom:18px"><span class="mark">▶</span> Comentários prontos</div>
+      <h1>Acesso protegido</h1>
+      <p>Digite a senha para abrir o painel de comentários.</p>
+      <div class="field">
+        <label for="accessPassword">Senha</label>
+        <input id="accessPassword" type="password" placeholder="Digite a senha" autocomplete="current-password" />
+      </div>
+      <button class="btn primary" id="unlockPanel" style="width:100%">Entrar</button>
+      <p class="hint" id="authHint">Senha inicial: admin123</p>
+    </div>
+  </section>
+
+  <main class="shell app-hidden" id="appShell">
     <header>
       <div class="brand"><span class="mark">▶</span> Comentários prontos</div>
       <div class="header-actions">
         <div class="status"><i class="dot" id="authDot"></i><span id="authStatus">Modo simples, sem login</span></div>
         <button class="btn" id="oauthSettings">Configurar OAuth</button>
         <button class="btn primary" id="connectGoogle">Conectar Google</button>
+        <button class="btn" id="lockPanel">Sair</button>
       </div>
     </header>
 
@@ -572,6 +616,8 @@
   <script>
     const storageKey = 'simple_youtube_comments';
     const oauthClientKey = 'youtube_oauth_client_id';
+    const accessSessionKey = 'youtube_panel_access_ok';
+    const accessPasswordHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
     const $ = (selector) => document.querySelector(selector);
     const toast = (message) => {
       const alert = $('#alert');
@@ -585,6 +631,49 @@
     let accessToken = '';
     let pendingPublishId = '';
     let selectedPublishAccount = '';
+
+    async function sha256(value) {
+      const data = new TextEncoder().encode(value);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(hash)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showApp() {
+      $('#authScreen').classList.add('app-hidden');
+      $('#appShell').classList.remove('app-hidden');
+      loadState();
+    }
+
+    function showLock() {
+      $('#appShell').classList.add('app-hidden');
+      $('#authScreen').classList.remove('app-hidden');
+      $('#accessPassword').value = '';
+      $('#accessPassword').focus();
+    }
+
+    async function unlockPanel() {
+      const password = $('#accessPassword').value;
+      if (!password) {
+        $('#authHint').textContent = 'Digite a senha para continuar.';
+        return;
+      }
+      const hash = await sha256(password);
+      if (hash !== accessPasswordHash) {
+        $('#authHint').textContent = 'Senha incorreta. Tente novamente.';
+        $('#accessPassword').select();
+        return;
+      }
+      sessionStorage.setItem(accessSessionKey, '1');
+      showApp();
+    }
+
+    function initAccessGate() {
+      if (sessionStorage.getItem(accessSessionKey) === '1') {
+        showApp();
+      } else {
+        showLock();
+      }
+    }
 
     function loadState() {
       try {
@@ -1165,7 +1254,16 @@
       toast('Fila limpa.');
     };
 
-    loadState();
+    $('#unlockPanel').onclick = unlockPanel;
+    $('#accessPassword').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') unlockPanel();
+    });
+    $('#lockPanel').onclick = () => {
+      sessionStorage.removeItem(accessSessionKey);
+      showLock();
+    };
+
+    initAccessGate();
   </script>
 </body>
 </html>
